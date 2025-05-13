@@ -10,7 +10,6 @@ const authUser = async (req,res,next) => {
 			
 		// if token does not exits, throw error
 		if(!token) throw new Error("Invalid Token");
-		
 		// verify if token is valid
 		const decodedObj = await jwt.verify(token, "DevTinder");
 		const {_id} = decodedObj;
