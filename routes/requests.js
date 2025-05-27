@@ -67,26 +67,21 @@ router.post('/request/recieve/:status/:requestId', userAuth, async (req, res) =>
             return res.status(400).send("Invalid status type");
         }
 
-        const connectionRequest = new ConnectionRequest({
+        const connectionRequest = await ConnectionRequest.findOne({
             _id: requestId,
             toUserId: req.user._id,
             status: "interested",
         });
 
-        console.log("Connection Request:", connectionRequest);
-
-        const connection = await ConnectionRequest.findOne(connectionRequest);
-
-        if(!connection){
+        if(!connectionRequest){
             return res.status(404).send("Connection request not found");
         }
 
         connectionRequest.status = status;
 
-        res.json({
-            message: "Connection request " + status + " successfully",
-            connectionRequest
-        });
+        const data = await connectionRequest.save();
+
+        res.json({ message: "Connection request " + status, data });
 
     } catch(err) {
         return res.status(400).send("Error: " + err.message);
