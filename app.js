@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const profileRoutes = require("./routes/profile");
+const connectionRequestsRoutes = require("./routes/requests");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -13,6 +14,7 @@ app.use(cookieParser());
 app.use("/", authRoutes);
 app.use("/", userRoutes);
 app.use("/", profileRoutes);
+app.use("/", connectionRequestsRoutes);
 
 // connecting to db then only start the server
 connectDb().then(() => {

@@ -6,6 +6,7 @@ router.get("/profile", userAuth, async (req,res) => {
     try{
         const user = req.user;
         if(!user) throw new Error("User does not exist");
+        res.json({'user': user});
     } catch(err){
         res.status(400).send("Error: " + err.message);
     }
@@ -28,7 +29,7 @@ router.patch("/profile/edit", userAuth, async (req,res) => {
         });
 
         await user.save();
-        res.json({'message': `${user.firstName}` + `your profile has been updated successfully`, 'user': user});
+        res.json({'message': `${user.firstName}` + ` your profile has been updated successfully`, 'user': user});
     }
     catch(err){
         res.status(400).send("Error: " + err.message);
