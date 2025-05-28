@@ -41,4 +41,34 @@ router.get("/user/requests/pending", userAuth, async (req, res) => {
     }
 });
 
+// get all connections for logged in user
+router.get('/user/connections', userAuth, async (req, res) => {
+
+    const loggedInUser = req.user;
+
+    try{    
+        const connections = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loggedInUser._id, status: "accepted" },
+                { toUserId: loggedInUser._id, status: "accepted" }
+            ]
+        }).populate("fromUserId", 'firstName lastName photoUrl age gender about skills')
+          .populate("toUserId", 'firstName lastName photoUrl age gender about skills');
+
+        const data = connections.map((connection) => {
+            if (connection.fromUserId._id.equals(loggedInUser._id)) {
+                return connection.toUserId; // Return the other user (toUserId)
+            } else {
+                return connection.fromUserId; // Return the other user (fromUserId)
+            }
+        });
+
+        res.json({data});
+
+    } catch(err){
+        return res.status(400).send("Error: " + err.message);
+    }
+
+});
+
 module.exports = router;
