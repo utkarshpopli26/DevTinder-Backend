@@ -5,6 +5,7 @@ const ConnectionRequest = require('../models/connectionRequests');
 const userAuth = require('../middlewares/userAuth');
 const User = require('../models/user');
 
+// send ignore or interested connection request
 router.post('/request/send/:status/:toUserId', userAuth, async (req, res) => {
 
     const {status, toUserId} = req.params;
@@ -53,6 +54,7 @@ router.post('/request/send/:status/:toUserId', userAuth, async (req, res) => {
 
 });
 
+// accept or reject received connection request
 router.post('/request/recieve/:status/:requestId', userAuth, async (req, res) => {
 
     try{
