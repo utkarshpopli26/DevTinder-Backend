@@ -4,13 +4,40 @@ const User = require('../models/user');
 const userAuth = require('../middlewares/userAuth');
 const ConnectionRequest = require('../models/connectionRequests');
 
+const USER_SAFE_DATA = 'firstName lastName photoUrl age gender about skills';
+
 router.get("/user/feed", userAuth, async (req,res) => {
 
     try{
-        const users = await User.find({});
-        if(!users) throw new Error("No users found");
+        const loggedInUser = req.user;
+        const page = parseInt(req.query.page) || 1;
+        let limit = parseInt(req.query.limit) || 10;
+        limit = limit > 50 ? 50 : limit;
+        const skip = (page - 1) * limit;
+        
+        const connectionRequests = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loggedInUser._id },
+                { toUserId: loggedInUser._id }
+            ]
+        });
+
+        const hideUserIds = new Set();
+
+        connectionRequests.forEach(request => {
+            hideUserIds.add(request.fromUserId.toString());
+            hideUserIds.add(request.toUserId.toString());
+        });
+
+        const users = await User.find({
+            $and: [
+                { _id: { $ne: loggedInUser._id } },
+                {_id: { $nin: Array.from(hideUserIds) }}
+            ]
+        }).select(USER_SAFE_DATA).skip(skip).limit(limit);
 
         res.send(users);
+
     } catch(err) {
         return res.status(400).send("Error: " + err.message);
     }
@@ -25,7 +52,7 @@ router.get("/user/requests/pending", userAuth, async (req, res) => {
         const pendingRequest = await ConnectionRequest.find({
             toUserId: loggedInUserId,
             status: "interested"
-        }).populate('fromUserId', 'firstName lastName photoUrl age gender about skills');
+        }).populate('fromUserId', USER_SAFE_DATA);
 
         if(!pendingRequest){
             return res.status(404).send("No pending requests found");
@@ -52,8 +79,8 @@ router.get('/user/connections', userAuth, async (req, res) => {
                 { fromUserId: loggedInUser._id, status: "accepted" },
                 { toUserId: loggedInUser._id, status: "accepted" }
             ]
-        }).populate("fromUserId", 'firstName lastName photoUrl age gender about skills')
-          .populate("toUserId", 'firstName lastName photoUrl age gender about skills');
+        }).populate("fromUserId", USER_SAFE_DATA)
+          .populate("toUserId", USER_SAFE_DATA);
 
         const data = connections.map((connection) => {
             if (connection.fromUserId._id.equals(loggedInUser._id)) {
