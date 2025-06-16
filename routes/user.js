@@ -7,7 +7,6 @@ const ConnectionRequest = require('../models/connectionRequests');
 const USER_SAFE_DATA = 'firstName lastName photoUrl age gender about skills';
 
 router.get("/user/feed", userAuth, async (req,res) => {
-
     try{
         const loggedInUser = req.user;
         const page = parseInt(req.query.page) || 1;
@@ -36,7 +35,7 @@ router.get("/user/feed", userAuth, async (req,res) => {
             ]
         }).select(USER_SAFE_DATA).skip(skip).limit(limit);
 
-        res.send(users);
+        res.json(users);
 
     } catch(err) {
         return res.status(400).send("Error: " + err.message);

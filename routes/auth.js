@@ -50,9 +50,9 @@ router.post("/login", async (req,res) => {
 
         const token = await user.getJwt();
 
-        res.cookie("token", token, {expiresIn: '7d'});
+        res.cookie("token", token, {expiresIn: '1d'});
         
-        res.send("login successful");
+        res.json(user);
     } catch(err){
             res.status(400).send("Error: " + err.message);
     }
