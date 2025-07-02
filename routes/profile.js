@@ -22,6 +22,8 @@ router.patch("/profile/edit", userAuth, async (req,res) => {
 
         if(!isUpdateAllowed) throw new Error("Invalid update");
 
+        if(req.body.skills.length > 10) throw new Error("You can only add up to 10 skills");
+
         const user = req.user;
 
         Object.keys(req.body).forEach((key) => {

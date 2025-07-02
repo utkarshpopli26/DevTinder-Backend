@@ -28,8 +28,13 @@ router.post("/signup", async (req,res) => {
         });
 
         //save the data in database
-        await newUser.save();
-        res.send("User signed up successfully");
+        const currentUser = await newUser.save();
+
+        const token = await currentUser.getJwt();
+
+        res.cookie("token", token, {expiresIn: '1d'});
+
+        res.json(user);
     } catch (err) {
         return res.status(400).send("Error: " + err.message);
     }   
