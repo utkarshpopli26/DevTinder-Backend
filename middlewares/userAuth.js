@@ -13,7 +13,7 @@ const authUser = async (req,res,next) => {
 
 			// verify if token is valid
 			// token, secretKey
-			const decodedObj = await jwt.verify(token, "DevTinder");
+			const decodedObj = await jwt.verify(token, process.env.JWT_SECRET);
 			const {_id} = decodedObj;
 			//get the user from database
 			const user = await User.findById(_id);
